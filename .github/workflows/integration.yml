@@ -1,0 +1,207 @@
+name: Integration
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+    - master
+    tags-ignore:
+    - "*"
+    paths:
+    - .dockerignore
+    - .github/workflows/integration.yml
+    - .golangci.yaml
+    - '**.go'
+    - go.mod
+    - go.sum
+    - sonar-project.properties
+  pull_request:
+    branches:
+    - master
+    paths:
+    - .dockerignore
+    - .github/workflows/integration.yml
+    - .golangci.yaml
+    - '**.go'
+    - go.mod
+    - go.sum
+    - sonar-project.properties
+
+env:
+  GOLANG_VERSION: "1.21"
+  GOLANG_FLAGS: -race -mod=readonly
+  WORK_DIR: /usr/src
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: calculate version
+      uses: paulhatch/semantic-version@v5.0.3
+      id: version
+      with:
+        branch: ${{ github.ref_name }}
+        bump_each_commit: false
+        change_path: >-
+          cmd/handler
+          internal
+          go.mod
+          go.sum
+        major_pattern: /^BREAKING CHANGE:|^[^()!:]+(?:\([^()!:]+\))?!:/
+        minor_pattern: /^feat(?:\([^()!:]+\))?:/
+        search_commit_body: true
+        user_format_type: csv
+        version_format: ${major}.${minor}.${patch}-rc.${increment}
+    outputs:
+      major: ${{ steps.version.outputs.major }}
+      minor: ${{ steps.version.outputs.minor }}
+      patch: ${{ steps.version.outputs.patch }}
+      increment: ${{ steps.version.outputs.increment }}
+      version_type: ${{ steps.version.outputs.version_type }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.version_tag }}
+      revision: ${{ steps.version.outputs.current_commit }}
+      authors:  ${{ steps.version.outputs.authors }}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - name: setup golang
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.GOLANG_VERSION }}
+    - name: set golang environment variables
+      uses: wwmoraes/actions/golang/env@master
+    - name: cache modules
+      uses: pat-s/always-upload-cache@v2.1.5
+      with:
+        path: ${GOMODCACHE}
+        key: ${{ runner.os }}-modules-${{ hashFiles('go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-modules-${{ hashFiles('go.sum') }}
+          ${{ runner.os }}-modules-
+    - name: download modules
+      run: go mod download
+    - name: cache lint
+      uses: pat-s/always-upload-cache@v2.1.5
+      with:
+        path: ${HOME}/.cache/golangci-lint
+        key: ${{ runner.os }}-lint-${{ hashFiles('.golangci.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-lint-${{ hashFiles('.golangci.yaml') }}
+          ${{ runner.os }}-lint-
+    - name: lint code source
+      uses: wwmoraes/actions/golang/lint@master
+      id: lint
+      with:
+        work-dir: ${{ env.WORK_DIR }}
+        version: v1.46-alpine
+    - name: upload code lint report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: source-lint-report
+        path: ${{ steps.lint.outputs.report-file }}
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - name: setup golang
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.GOLANG_VERSION }}
+    - name: set golang environment variables
+      uses: wwmoraes/actions/golang/env@master
+    - name: cache modules
+      uses: pat-s/always-upload-cache@v2.1.5
+      with:
+        path: ${GOMODCACHE}
+        key: ${{ runner.os }}-modules-${{ hashFiles('go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-modules-${{ hashFiles('go.sum') }}
+          ${{ runner.os }}-modules-
+    - name: download modules
+      run: go mod download
+    - name: cache test
+      uses: pat-s/always-upload-cache@v2.1.5
+      with:
+        path: ${GOCACHE}
+        key: ${{ runner.os }}-test-${{ hashFiles('**/*.go') }}
+        restore-keys: |
+          ${{ runner.os }}-test-${{ hashFiles('**/*.go') }}
+          ${{ runner.os }}-test-
+    - name: test
+      uses: wwmoraes/actions/golang/integration@master
+      id: test
+      with:
+        run-flags: -race -mod=readonly
+        packages: ./cmd/internal/integration/...
+        coverage-packages: |-
+          github.com/${{ github.repository }}/internal/usecases
+          github.com/${{ github.repository }}/internal/adapters
+    - name: upload coverage report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: coverage-report
+        path: ${{ steps.test.outputs.cover-profile }}
+    - name: upload test report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-report
+        path: ${{ steps.test.outputs.report-file }}
+  report:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: always()
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: cache sonar scanner
+      uses: pat-s/always-upload-cache@v2.1.5
+      if: false
+      with:
+        path: ${{ runner.temp }}/sonar-scanner/cache
+        # yamllint disable-line rule:line-length
+        key: ${{ runner.os }}-sonar-scanner-cache-${{ hashFiles('**/sonar-project.properties') }}
+        # yamllint disable rule:line-length
+        restore-keys: |
+          ${{ runner.os }}-sonar-scanner-cache-${{ hashFiles('**/sonar-project.properties') }}
+          ${{ runner.os }}-sonar-scanner-cache-
+        # yamllint enable rule:line-length
+    - name: download source lint report
+      uses: actions/download-artifact@v3
+      with:
+        name: source-lint-report
+    - name: download test report
+      uses: actions/download-artifact@v3
+      with:
+        name: test-report
+    - name: download coverage report
+      uses: actions/download-artifact@v3
+      with:
+        name: coverage-report
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    - name: run sonar scanner
+      uses: wwmoraes/actions/sonar-scanner@master
+      if: false
+      with:
+        token: ${{ secrets.SONAR_TOKEN }}
+        work-dir: ${{ env.WORK_DIR }}
+        home: ${{ runner.temp }}/sonar-scanner

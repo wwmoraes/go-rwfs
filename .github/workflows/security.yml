@@ -1,0 +1,88 @@
+name: Security
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - .github/workflows/security.yml
+    - .golangci.yaml
+    - go.mod
+    - go.sum
+    - '**.go'
+  pull_request:
+    branches:
+    - master
+    paths:
+    - .github/workflows/security.yml
+    - .golangci.yaml
+    - go.mod
+    - go.sum
+    - '**.go'
+  schedule:
+  - cron: '0 9 * * 1'
+
+env:
+  GOLANG_VERSION: "1.21"
+  GOLANG_FLAGS: -race -mod=readonly
+  GRYPE_DB_CACHE_TEMP_PATH: .cache/grype/db/
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: calculate version
+      uses: paulhatch/semantic-version@v5.0.3
+      id: version
+      with:
+        branch: ${{ github.ref_name }}
+        bump_each_commit: false
+        change_path: >-
+          cmd/handler
+          internal
+          go.mod
+          go.sum
+        major_pattern: /^BREAKING CHANGE:|^[^()!:]+(?:\([^()!:]+\))?!:/
+        minor_pattern: /^feat(?:\([^()!:]+\))?:/
+        search_commit_body: true
+        user_format_type: csv
+        version_format: ${major}.${minor}.${patch}-rc.${increment}
+    outputs:
+      major: ${{ steps.version.outputs.major }}
+      minor: ${{ steps.version.outputs.minor }}
+      patch: ${{ steps.version.outputs.patch }}
+      increment: ${{ steps.version.outputs.increment }}
+      version_type: ${{ steps.version.outputs.version_type }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.version_tag }}
+      revision: ${{ steps.version.outputs.current_commit }}
+      authors:  ${{ steps.version.outputs.authors }}
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - name: setup
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.GOLANG_VERSION }}
+    - name: initialize
+      uses: github/codeql-action/init@v2
+      with:
+        languages: go
+    - name: build
+      uses: wwmoraes/actions/golang/build@master
+    - name: analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:go"
