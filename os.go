@@ -19,3 +19,7 @@ func (fsys osFS) Open(name string) (fs.File, error) {
 func (fsys osFS) OpenFile(name string, flag int, perm fs.FileMode) (File, error) {
 	return os.OpenFile(filepath.Join(string(fsys), name), flag, perm)
 }
+
+func (fsys osFS) MkdirAll(path string, perm fs.FileMode) error {
+	return os.MkdirAll(filepath.Join(string(fsys), path), perm)
+}

@@ -10,8 +10,10 @@ import (
 )
 
 const (
-	testFileName = "test.txt"
-	testContent  = "lorem ipsum"
+	testFileName  = "test.txt"
+	testContent   = "lorem ipsum"
+	testDirName   = "testdir"
+	testNestedDir = "nested/dir"
 )
 
 func main() {
@@ -42,6 +44,14 @@ func main() {
 	if n != len(testContent) {
 		assert(fmt.Errorf("wrote %d bytes, expected %d", n, len(testContent)))
 	}
+
+	log.Println("creating directory")
+	err = fsys.MkdirAll(testDirName, 0755)
+	assert(err)
+
+	log.Println("creating nested directory")
+	err = fsys.MkdirAll(testNestedDir, 0755)
+	assert(err)
 
 	log.Println("reading file contents")
 	content, err := fs.ReadFile(fsys, testFileName)
