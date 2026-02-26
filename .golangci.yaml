@@ -210,6 +210,7 @@ linters:
       - "1"
       - "2"
       - "0o640"
+      - "0o755"
       ignored-functions:
       - ^bbolt\.Open$
       - ^cobra\.ExactArgs$
@@ -341,6 +342,7 @@ linters:
       multi-func: false
     wrapcheck:
       ignore-sigs:
+      - (*os.Root).MkdirAll(
       - (*os.Root).OpenFile(
       - errors.Join(
       - errors.New(

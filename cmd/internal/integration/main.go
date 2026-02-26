@@ -16,8 +16,10 @@ import (
 )
 
 const (
-	testFileName = "test.txt"
-	testContent  = "lorem ipsum"
+	testFileName  = "test.txt"
+	testContent   = "lorem ipsum"
+	testDirName   = "testdir"
+	testNestedDir = "nested/dir"
 )
 
 var (
@@ -26,6 +28,7 @@ var (
 	exitCode           atomic.Int32
 )
 
+//nolint:funlen // TODO refactor
 func main() {
 	defer func() {
 		os.Exit(int(exitCode.Load()))
@@ -66,6 +69,16 @@ func main() {
 	if writtenBytes != len(testContent) {
 		AssertWith(io.ErrShortWrite, fmt.Sprintf("wrote %d bytes, expected %d", writtenBytes, len(testContent)))
 	}
+
+	log.Println("creating directory")
+
+	err = fsys.MkdirAll(testDirName, 0o755)
+	AssertWith(err, "creating directory")
+
+	log.Println("creating nested directory")
+
+	err = fsys.MkdirAll(testNestedDir, 0o755)
+	AssertWith(err, "creating nested directory")
 
 	log.Println("reading file contents")
 

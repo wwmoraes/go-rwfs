@@ -95,6 +95,9 @@ func main() {
   defer fd.Close()
 
   fd.WriteString("hello from rwfs!")
+
+  // create directories
+  fsys.MkdirAll("nested/dir", 0755)
 }
 ```
 

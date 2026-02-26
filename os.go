@@ -39,3 +39,17 @@ func (fsys osFS) OpenFile(name string, flag int, perm fs.FileMode) (File, error)
 
 	return root.OpenFile(name, flag, perm)
 }
+
+// MkdirAll creates a new directory in the root, along with any necessary parents.
+// See [MkdirAll] for more details.
+//
+// If perm contains bits other than the nine least-significant bits (0o777),
+// MkdirAll returns an error.
+func (fsys osFS) MkdirAll(path string, perm fs.FileMode) error {
+	root, err := os.OpenRoot(string(fsys))
+	if err != nil {
+		return err
+	}
+
+	return root.MkdirAll(path, perm)
+}
