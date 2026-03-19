@@ -6,9 +6,10 @@
 [![GitHub Issues](https://img.shields.io/github/issues/wwmoraes/go-rwfs.svg)](https://github.com/wwmoraes/go-rwfs/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/wwmoraes/go-rwfs.svg)](https://github.com/wwmoraes/go-rwfs/pulls)
 
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/wwmoraes/go-rwfs/master.svg)](https://results.pre-commit.ci/latest/github/wwmoraes/go-rwfs/master)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_go-rwfs&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=wwmoraes_go-rwfs)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_go-rwfs&metric=coverage)](https://sonarcloud.io/summary/new_code?id=wwmoraes_go-rwfs)
+![GitHub branch status](https://img.shields.io/github/checks-runs/wwmoraes/go-rwfs/master)
+[![Integration](https://github.com/wwmoraes/go-rwfs/actions/workflows/integration.yml/badge.svg)](https://github.com/wwmoraes/go-rwfs/actions/workflows/integration.yml)
+[![Security](https://github.com/wwmoraes/go-rwfs/actions/workflows/security.yml/badge.svg)](https://github.com/wwmoraes/go-rwfs/actions/workflows/security.yml)
+[![Documentation](https://github.com/wwmoraes/go-rwfs/actions/workflows/documentation.yml/badge.svg)](https://github.com/wwmoraes/go-rwfs/actions/workflows/documentation.yml)
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwwmoraes%2Fgo-rwfs.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwwmoraes%2Fgo-rwfs?ref=badge_shield)
@@ -18,16 +19,12 @@
 
 ## 📝 Table of Contents
 
-- [About](#-about)
-- [Getting Started](#-getting-started)
-- [Usage](#-usage)
-- [Built Using](#-built-using)
+- [About](#about)
+- [Usage](#usage)
 - [TODO](./TODO.md)
 - [Contributing](./CONTRIBUTING.md)
-- [Authors](#-authors)
-- [Acknowledgments](#-acknowledgements)
 
-## 🧐 About
+## About
 
 Wrapper around [`io.fs`][std-fs] interfaces to support read-write operations.
 
@@ -50,7 +47,7 @@ as `os.File`, which hardcodes the requirement to use a OS-level filesystem.
 This means those interfaces are a drop-in replacement for any use-cases of the
 `fs` package where you now need write access as well.
 
-## 🏁 Getting Started
+## Getting Started
 
 Fetch the package:
 
@@ -60,12 +57,12 @@ go get github.com/wwmoraes/go-rwfs
 
 Now you're good to _Go_ 😉
 
-## 🔧 Running the tests
+## Running the tests
 
 Clone the repository then use `make coverage` to run both unit and integration
 tests.
 
-## 🎈 Usage
+## Usage
 
 The package comes with a concrete implementation for the OS filesystem, similar
 to how the standard Golang distribution provides `os.DirFS`:
@@ -100,18 +97,6 @@ func main() {
   fd.WriteString("hello from rwfs!")
 }
 ```
-
-## 🔧 Built Using
-
-- [Golang](https://go.dev) - Base language
-
-## 🧑‍💻 Authors
-
-- [@wwmoraes](https://github.com/wwmoraes) - Idea & Initial work
-
-## 🎉 Acknowledgements
-
-- Golang team for providing the [`fs`][std-fs] and [`io`][std-io] interfaces
 
 [std-fs]: https://pkg.go.dev/io/fs
 [std-io]: https://pkg.go.dev/io
