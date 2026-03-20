@@ -49,8 +49,6 @@ jobs:
         branch: ${{ github.ref_name }}
         bump_each_commit: false
         change_path: >-
-          cmd/handler
-          internal
           go.mod
           go.sum
         major_pattern: /^BREAKING CHANGE:|^[^()!:]+(?:\([^()!:]+\))?!:/

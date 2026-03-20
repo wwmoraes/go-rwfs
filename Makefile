@@ -16,7 +16,8 @@ all:: ;
 
 .PHONY: check
 #: Perform self-checks such as linting and formatting.
-check:: ;
+check::
+	nix flake check
 
 .PHONY: clean
 #: Delete all files that are normally created by building.

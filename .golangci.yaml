@@ -127,25 +127,12 @@ linters:
     goheader:
       template-path: .vscode/header.txt
     gomoddirectives:
-      replace-allow-list:
-      - github.com/miladabc/gonfig
-      - github.com/ugorji/go
+      replace-allow-list: []
       exclude-forbidden: true
     gomodguard:
       allowed:
-        modules:
-        - dario.cat/mergo
-        - git.sr.ht/~emersion/go-jsonschema
-        - go.etcd.io/bbolt
-        - go.uber.org/automaxprocs
-        - modernc.org/sqlite
-        domains:
-        - github.com
-        - go.mongodb.org
-        - go.opentelemetry.io
-        - golang.org
-        - google.golang.org
-        - gopkg.in
+        modules: []
+        domains: []
       blocked:
         local-replace-directives: true
     gosec:
@@ -364,10 +351,6 @@ linters:
       - funlen
       - maintidx
       path: .+_test\.go
-    ## wire functions return iface so it can switch drivers without touching return types
-    - linters:
-      - ireturn
-      path: cmd/handler/wire.go
     ## gocritic exceptions
     ### unnamedResult is a dupe of revive's confusing-results; it also doesn't
     ### detect type aliases like revive does
