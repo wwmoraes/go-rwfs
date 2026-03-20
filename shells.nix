@@ -8,7 +8,6 @@ rec {
       # keep-sorted start
       (pkgs.mkGoEnv { pwd = ./.; })
       pkgs.cocogitto
-      pkgs.gotestdox
       pkgs.remake
       pkgs.unstable.go
       pkgs.unstable.golangci-lint

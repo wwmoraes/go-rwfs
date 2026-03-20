@@ -1,10 +1,3 @@
 schema = 3
 
 [mod]
-  [mod.'github.com/wadey/gocovmerge']
-    version = 'v0.0.0-20160331181800-b5bfa59ec0ad'
-    hash = 'sha256-YbA4t26v6frdkh0uiXtmi8hiDYjR/FPBTxTwWlmfpwI='
-
-  [mod.'golang.org/x/tools']
-    version = 'v0.43.0'
-    hash = 'sha256-CqwqQl9inMT0/5LJ8hmV3HNR1XdI/xBFbi3305VJUlo='

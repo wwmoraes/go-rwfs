@@ -45,7 +45,6 @@
       perSystem =
         {
           pkgs,
-          self',
           system,
           ...
         }:
@@ -60,14 +59,6 @@
               })
             ];
             config = { };
-          };
-          checks = {
-            build = pkgs.callPackage ./default.nix { };
-            integration = pkgs.runCommandLocal "integration" {
-              nativeBuildInputs = [
-                self'.checks.build
-              ];
-            } "integration > $out";
           };
           devShells = import ./shells.nix (pkgs // { inherit pkgs; });
         };
