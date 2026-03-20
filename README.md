@@ -12,8 +12,6 @@
 [![Documentation](https://github.com/wwmoraes/go-rwfs/actions/workflows/documentation.yml/badge.svg)](https://github.com/wwmoraes/go-rwfs/actions/workflows/documentation.yml)
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwwmoraes%2Fgo-rwfs.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwwmoraes%2Fgo-rwfs?ref=badge_shield)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/0/badge)](https://bestpractices.coreinfrastructure.org/projects/0)
 
 ---
 
